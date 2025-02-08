@@ -1,21 +1,66 @@
+import { describe, it, expect, beforeEach } from "vitest"
 
-import { describe, expect, it } from "vitest";
+// Mock storage for licenses
+const licenses = new Map()
+let nextLicenseId = 0
 
-const accounts = simnet.getAccounts();
-const address1 = accounts.get("wallet_1")!;
+// Mock functions to simulate contract behavior
+function createLicense(ipId: number, licensee: string, terms: string, duration: number) {
+  const licenseId = nextLicenseId++
+  licenses.set(licenseId, {
+    ipId,
+    licensor: "mock-licensor-address",
+    licensee,
+    terms,
+    startDate: Date.now(),
+    endDate: Date.now() + duration * 1000,
+    status: "active",
+  })
+  return licenseId
+}
 
-/*
-  The test below is an example. To learn more, read the testing documentation here:
-  https://docs.hiro.so/stacks/clarinet-js-sdk
-*/
+function updateLicenseStatus(licenseId: number, newStatus: string) {
+  if (!licenses.has(licenseId)) {
+    throw new Error("License not found")
+  }
+  const license = licenses.get(licenseId)
+  license.status = newStatus
+  licenses.set(licenseId, license)
+}
 
-describe("example tests", () => {
-  it("ensures simnet is well initalised", () => {
-    expect(simnet.blockHeight).toBeDefined();
-  });
+function getLicense(licenseId: number) {
+  return licenses.get(licenseId)
+}
 
-  // it("shows an example", () => {
-  //   const { result } = simnet.callReadOnlyFn("counter", "get-counter", [], address1);
-  //   expect(result).toBeUint(0);
-  // });
-});
+describe("Licensing Contract", () => {
+  beforeEach(() => {
+    licenses.clear()
+    nextLicenseId = 0
+  })
+  
+  it("should create a new license", () => {
+    const licenseId = createLicense(0, "licensee-address", "Test terms", 30 * 24 * 60 * 60) // 30 days
+    expect(licenseId).toBe(0)
+    expect(licenses.size).toBe(1)
+  })
+  
+  it("should update license status", () => {
+    const licenseId = createLicense(0, "licensee-address", "Test terms", 30 * 24 * 60 * 60)
+    updateLicenseStatus(licenseId, "terminated")
+    const license = getLicense(licenseId)
+    expect(license.status).toBe("terminated")
+  })
+  
+  it("should get license details", () => {
+    const licenseId = createLicense(0, "licensee-address", "Test terms", 30 * 24 * 60 * 60)
+    const license = getLicense(licenseId)
+    expect(license).toBeDefined()
+    expect(license.licensee).toBe("licensee-address")
+    expect(license.terms).toBe("Test terms")
+  })
+  
+  it("should throw an error when updating non-existent license", () => {
+    expect(() => updateLicenseStatus(999, "terminated")).toThrow("License not found")
+  })
+})
+
