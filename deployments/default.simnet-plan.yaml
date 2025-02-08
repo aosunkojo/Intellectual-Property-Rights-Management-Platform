@@ -50,13 +50,18 @@ plan:
     - id: 0
       transactions:
         - emulated-contract-publish:
+            contract-name: ip-registration
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/ip-registration.clar
+            clarity-version: 2
+        - emulated-contract-publish:
             contract-name: licensing
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/licensing.clar
             clarity-version: 2
         - emulated-contract-publish:
-            contract-name: ip-registration
+            contract-name: royalty-distribution
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: contracts/ip-registration.clar
+            path: contracts/royalty-distribution.clar
             clarity-version: 2
       epoch: "2.5"
